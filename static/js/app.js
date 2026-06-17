@@ -39,6 +39,7 @@ const DOM = {
     btnCloseBackdrop: document.getElementById('modal-close-backdrop'),
     btnCopyTweet: document.getElementById('btn-copy-tweet'),
     btnSubmitTweet: document.getElementById('btn-submit-tweet'),
+    btnExportCsv: document.getElementById('btn-export-csv'),
     
     // Toast
     toast: document.getElementById('toast'),
@@ -57,6 +58,7 @@ document.addEventListener('DOMContentLoaded', () => {
     
     // Event Listeners
     DOM.btnRefresh.addEventListener('click', () => fetchUpdates(true));
+    DOM.btnExportCsv.addEventListener('click', exportToCSV);
     
     DOM.searchInput.addEventListener('input', (e) => {
         state.searchQuery = e.target.value;
@@ -215,7 +217,7 @@ function renderUpdatesList() {
                 </div>
                 
                 <div class="card-actions">
-                    <button class="btn-secondary btn-copy-raw" onclick="copyRawText('${item.id}')" aria-label="Copy update text">
+                    <button class="btn-secondary btn-copy-raw" onclick="copyRawText('${item.id}', this)" aria-label="Copy update text">
                         <i data-lucide="copy" style="width: 16px; height: 16px;"></i>
                         <span>Copy</span>
                     </button>
@@ -367,11 +369,15 @@ function copyTweetText() {
     navigator.clipboard.writeText(text).then(() => {
         showToast('Tweet draft copied to clipboard!');
         
-        // Simple micro-animation flash on the copy button
+        // Visual button feedback
+        const originalHTML = DOM.btnCopyTweet.innerHTML;
+        DOM.btnCopyTweet.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#34d399" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-check"><path d="M20 6 9 17l-5-5"/></svg><span>Copied!</span>';
         DOM.btnCopyTweet.style.transform = 'scale(0.95)';
+        
         setTimeout(() => {
+            DOM.btnCopyTweet.innerHTML = originalHTML;
             DOM.btnCopyTweet.style.transform = 'scale(1)';
-        }, 100);
+        }, 1500);
     });
 }
 
@@ -387,13 +393,61 @@ function publishTweet() {
     closeModal();
 }
 
-function copyRawText(updateId) {
+function copyRawText(updateId, buttonEl) {
     const update = state.updates.find(item => item.id === updateId);
     if (!update) return;
     
     navigator.clipboard.writeText(update.text).then(() => {
         showToast('Release note text copied!');
+        
+        if (buttonEl) {
+            const originalHTML = buttonEl.innerHTML;
+            buttonEl.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#34d399" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-check"><path d="M20 6 9 17l-5-5"/></svg><span>Copied!</span>';
+            buttonEl.style.transform = 'scale(0.95)';
+            
+            setTimeout(() => {
+                buttonEl.innerHTML = originalHTML;
+                buttonEl.style.transform = 'scale(1)';
+            }, 1500);
+        }
     });
+}
+
+function exportToCSV() {
+    if (state.filteredUpdates.length === 0) {
+        showToast('No updates to export', 'error');
+        return;
+    }
+    
+    const headers = ['ID', 'Date', 'Type', 'Content'];
+    const rows = state.filteredUpdates.map(upd => [
+        upd.id,
+        upd.date,
+        upd.type,
+        upd.text.replace(/"/g, '""') // Escape double quotes
+    ]);
+    
+    // Construct CSV content
+    const csvContent = [
+        headers.join(','),
+        ...rows.map(row => row.map(cell => `"${cell}"`).join(','))
+    ].join('\n');
+    
+    // Create Blob and trigger download
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.setAttribute('href', url);
+    
+    const filterName = state.activeFilter;
+    const timestamp = new Date().toISOString().split('T')[0];
+    link.setAttribute('download', `bigquery_releases_${filterName}_${timestamp}.csv`);
+    
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    
+    showToast('CSV exported successfully!');
 }
 
 // ==========================================================================
