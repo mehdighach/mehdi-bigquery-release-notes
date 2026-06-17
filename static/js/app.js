@@ -41,6 +41,7 @@ const DOM = {
     btnSubmitTweet: document.getElementById('btn-submit-tweet'),
     btnExportCsv: document.getElementById('btn-export-csv'),
     btnThemeToggle: document.getElementById('btn-theme-toggle'),
+    btnBackToTop: document.getElementById('btn-back-to-top'),
     
     // Toast
     toast: document.getElementById('toast'),
@@ -71,6 +72,19 @@ document.addEventListener('DOMContentLoaded', () => {
     
     DOM.btnRefresh.addEventListener('click', () => fetchUpdates(true));
     DOM.btnExportCsv.addEventListener('click', exportToCSV);
+    
+    // Back to Top Button Listeners
+    window.addEventListener('scroll', () => {
+        if (window.scrollY > 300) {
+            DOM.btnBackToTop.classList.add('visible');
+        } else {
+            DOM.btnBackToTop.classList.remove('visible');
+        }
+    });
+    
+    DOM.btnBackToTop.addEventListener('click', () => {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    });
     
     DOM.searchInput.addEventListener('input', (e) => {
         state.searchQuery = e.target.value;
