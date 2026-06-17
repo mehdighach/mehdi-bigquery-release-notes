@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BigQuery Release Notes Hub & Tweet Composer</title>
+    <meta name="description" content="Stay up to date with Google Cloud BigQuery release notes. Filter, search, and instantly draft and share updates directly to X (Twitter).">
+    
+    <!-- Google Fonts: Inter & Space Grotesk -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
+    
+    <!-- Lucide Icons for premium visual indicators -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    
+    <!-- Custom Style Sheet -->
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+    <header class="app-header">
+        <div class="header-container">
+            <div class="brand">
+                <div class="logo-glow"></div>
+                <i data-lucide="database" class="logo-icon"></i>
+                <div class="brand-text">
+                    <h1>BigQuery Release Notes</h1>
+                    <span class="sub-title">Stay updated with Google Cloud's data warehouse</span>
+                </div>
+            </div>
+            
+            <div class="header-actions">
+                <span id="cache-indicator" class="cache-badge">Checking cache...</span>
+                <button id="btn-refresh" class="btn-primary" aria-label="Refresh release notes">
+                    <i data-lucide="refresh-cw" class="icon-spin-target"></i>
+                    <span>Refresh</span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <main class="app-container">
+        <!-- Dashboard Toolbar -->
+        <section class="toolbar-section" aria-label="Search and Filter Controls">
+            <div class="search-box">
+                <i data-lucide="search" class="search-icon"></i>
+                <input type="text" id="search-input" placeholder="Search updates (e.g. Gemini, partition, performance)..." aria-label="Search release notes">
+                <button id="btn-clear-search" class="clear-search-btn" aria-label="Clear search" style="display: none;">
+                    <i data-lucide="x"></i>
+                </button>
+            </div>
+            
+            <div class="filter-wrapper">
+                <span class="filter-label">Filter by:</span>
+                <div id="filter-container" class="filter-badges">
+                    <button class="filter-badge active" data-type="all" id="filter-all">All Updates</button>
+                    <button class="filter-badge" data-type="feature" id="filter-feature">Features</button>
+                    <button class="filter-badge" data-type="announcement" id="filter-announcement">Announcements</button>
+                    <button class="filter-badge" data-type="issue" id="filter-issue">Issues</button>
+                    <button class="filter-badge" data-type="deprecation" id="filter-deprecation">Deprecations</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- Main Content Grid -->
+        <section class="content-section">
+            <div class="stats-bar">
+                <div class="stats-text">
+                    Showing <strong id="visible-count">0</strong> of <strong id="total-count">0</strong> updates
+                </div>
+            </div>
+
+            <!-- Shimmer Loading Placeholder -->
+            <div id="shimmer-container" class="updates-list">
+                <div class="shimmer-card"></div>
+                <div class="shimmer-card"></div>
+                <div class="shimmer-card"></div>
+            </div>
+
+            <!-- Empty State -->
+            <div id="empty-state" class="empty-state" style="display: none;">
+                <i data-lucide="info" class="empty-icon"></i>
+                <h2>No release notes found</h2>
+                <p>Try adjusting your search terms or filters, or hit the refresh button to pull the latest updates.</p>
+            </div>
+
+            <!-- Real Updates List -->
+            <div id="updates-container" class="updates-list" style="display: none;">
+                <!-- Cards will be dynamically inserted here -->
+            </div>
+        </section>
+    </main>
+
+    <!-- Tweet Composer Modal -->
+    <div id="tweet-modal" class="modal" aria-hidden="true" role="dialog" aria-labelledby="modal-title">
+        <div class="modal-backdrop" id="modal-close-backdrop"></div>
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="modal-header-title">
+                    <i data-lucide="twitter" class="tweet-icon-brand"></i>
+                    <h2 id="modal-title">Compose Tweet</h2>
+                </div>
+                <button id="btn-close-modal" class="btn-close" aria-label="Close modal">
+                    <i data-lucide="x"></i>
+                </button>
+            </div>
+            
+            <div class="modal-body">
+                <!-- Preview original update context -->
+                <div class="update-context">
+                    <span class="context-label">Selected Update:</span>
+                    <div id="modal-update-preview" class="context-preview"></div>
+                </div>
+
+                <div class="template-selector">
+                    <span class="section-label">Select Draft Template:</span>
+                    <div class="template-chips">
+                        <button class="template-chip active" data-template="standard" id="template-std">
+                            🚀 Standard
+                        </button>
+                        <button class="template-chip" data-template="brief" id="template-brief">
+                            ⚡ Brief
+                        </button>
+                        <button class="template-chip" data-template="quote" id="template-quote">
+                            💬 Quote Style
+                        </button>
+                    </div>
+                </div>
+
+                <div class="composer-area">
+                    <label for="tweet-textarea" class="visually-hidden">Tweet text</label>
+                    <textarea id="tweet-textarea" rows="5" placeholder="Draft your tweet here..."></textarea>
+                    
+                    <div class="composer-footer">
+                        <div class="character-counter">
+                            <svg class="progress-ring" width="28" height="28">
+                                <circle class="progress-ring__bg" stroke="rgba(255, 255, 255, 0.1)" stroke-width="3" fill="transparent" r="11" cx="14" cy="14"/>
+                                <circle id="progress-ring-circle" class="progress-ring__circle" stroke="#1d9bf0" stroke-width="3" fill="transparent" r="11" cx="14" cy="14"/>
+                            </svg>
+                            <span id="char-count">280</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="modal-footer">
+                <button id="btn-copy-tweet" class="btn-secondary">
+                    <i data-lucide="copy"></i>
+                    <span>Copy Text</span>
+                </button>
+                <button id="btn-submit-tweet" class="btn-tweet">
+                    <i data-lucide="send"></i>
+                    <span>Tweet on X</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Notification -->
+    <div id="toast" class="toast" role="alert" aria-live="assertive" aria-atomic="true">
+        <i data-lucide="check-circle" class="toast-icon"></i>
+        <span id="toast-message">Success!</span>
+    </div>
+
+    <footer class="app-footer-bar">
+        <p>&copy; 2026 BigQuery Release Notes Hub. Designed with premium dark mode. Powered by Google Cloud RSS Feed.</p>
+    </footer>
+
+    <!-- Application Script -->
+    <script src="/static/js/app.js"></script>
+</body>
+</html>
