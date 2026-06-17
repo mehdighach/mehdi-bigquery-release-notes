@@ -61,6 +61,98 @@
 
 /* 
    ==========================================================================
+   LIGHT THEME VARIABLES OVERRIDE
+   ========================================================================== 
+*/
+html.light-theme {
+    --bg-main: #f3f4f6;
+    --bg-surface: #ffffff;
+    --bg-surface-hover: #f9fafb;
+    --bg-card: #ffffff;
+    --bg-modal: #ffffff;
+    --border-color: rgba(0, 0, 0, 0.08);
+    --border-hover: rgba(0, 0, 0, 0.15);
+    
+    --text-main: #111827;
+    --text-muted: #4b5563;
+    --text-inverse: #ffffff;
+    
+    --badge-feature-bg: rgba(16, 185, 129, 0.1);
+    --badge-feature-text: #059669;
+    --badge-feature-border: rgba(16, 185, 129, 0.2);
+    
+    --badge-announcement-bg: rgba(59, 130, 246, 0.1);
+    --badge-announcement-text: #1d4ed8;
+    --badge-announcement-border: rgba(59, 130, 246, 0.2);
+    
+    --badge-issue-bg: rgba(239, 68, 68, 0.1);
+    --badge-issue-text: #dc2626;
+    --badge-issue-border: rgba(239, 68, 68, 0.2);
+    
+    --badge-deprecation-bg: rgba(168, 85, 247, 0.1);
+    --badge-deprecation-text: #7c3aed;
+    --badge-deprecation-border: rgba(168, 85, 247, 0.2);
+    
+    --badge-general-bg: rgba(107, 114, 128, 0.1);
+    --badge-general-text: #374151;
+    --badge-general-border: rgba(107, 114, 128, 0.2);
+    
+    --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.05);
+    --shadow-md: 0 8px 24px rgba(0, 0, 0, 0.08);
+    --shadow-lg: 0 16px 40px rgba(0, 0, 0, 0.12);
+    --shadow-glow: 0 0 25px rgba(59, 130, 246, 0.05);
+}
+
+/* Light Theme Element Overrides */
+html.light-theme .logo-glow {
+    opacity: 0.15;
+}
+html.light-theme #search-input {
+    background: rgba(0, 0, 0, 0.02);
+}
+html.light-theme #search-input:focus {
+    background: rgba(0, 0, 0, 0.04);
+    box-shadow: 0 0 25px rgba(59, 130, 246, 0.08);
+}
+html.light-theme .card-body code {
+    background: rgba(0, 0, 0, 0.05);
+    color: #0369a1;
+}
+html.light-theme .card-body pre {
+    background: #f9fafb;
+    border-color: rgba(0, 0, 0, 0.08);
+}
+html.light-theme .card-body pre code {
+    color: #111827;
+}
+html.light-theme .release-link {
+    color: #2563eb;
+    border-bottom-color: rgba(37, 99, 235, 0.4);
+}
+html.light-theme .release-link:hover {
+    color: #1d4ed8;
+    border-bottom-color: #1d4ed8;
+}
+html.light-theme .context-preview {
+    background: #f3f4f6;
+}
+html.light-theme .app-footer-bar {
+    background: rgba(243, 244, 246, 0.5);
+}
+
+/* Theme Toggle Button Icon Display */
+#theme-icon-moon {
+    display: none !important;
+}
+html.light-theme #theme-icon-sun {
+    display: none !important;
+}
+html.light-theme #theme-icon-moon {
+    display: inline-block !important;
+}
+
+/* 
+   ==========================================================================
    BASE STYLES
    ========================================================================== 
 */

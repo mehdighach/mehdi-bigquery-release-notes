@@ -40,6 +40,7 @@ const DOM = {
     btnCopyTweet: document.getElementById('btn-copy-tweet'),
     btnSubmitTweet: document.getElementById('btn-submit-tweet'),
     btnExportCsv: document.getElementById('btn-export-csv'),
+    btnThemeToggle: document.getElementById('btn-theme-toggle'),
     
     // Toast
     toast: document.getElementById('toast'),
@@ -56,7 +57,18 @@ document.addEventListener('DOMContentLoaded', () => {
     // Load initial updates
     fetchUpdates(false);
     
+    // Theme Initialization
+    const savedTheme = localStorage.getItem('theme') || 'dark';
+    if (savedTheme === 'light') {
+        document.documentElement.classList.add('light-theme');
+    }
+    
     // Event Listeners
+    DOM.btnThemeToggle.addEventListener('click', () => {
+        const isLight = document.documentElement.classList.toggle('light-theme');
+        localStorage.setItem('theme', isLight ? 'light' : 'dark');
+    });
+    
     DOM.btnRefresh.addEventListener('click', () => fetchUpdates(true));
     DOM.btnExportCsv.addEventListener('click', exportToCSV);
     
